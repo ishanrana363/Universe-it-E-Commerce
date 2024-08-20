@@ -5,7 +5,7 @@ const connectDB = require("./db");
 
 const port = process.env.PORT||3000;
 
-app.listen(port,async()=>{
+app.listen(port,()=>{
     console.log(`server run successfully at http://localhost:${port}`);
-    await connectDB();
+    connectDB();
 });

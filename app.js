@@ -30,6 +30,9 @@ app.use(limiter)
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json({limit: '50mb'}));
 
+app.get("/",()=>{
+    res.send("Server is running");
+})
 
 // public routes
 const publicRoute = require("./src/routes/publicRoute");
