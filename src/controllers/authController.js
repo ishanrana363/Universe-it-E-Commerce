@@ -2,7 +2,7 @@ const { createWebToken } = require("../helpers/jsonToken");
 const userModel = require("../models/userModel");
 const sendMail = require("../helpers/email")
 require("dotenv").config();
-
+const jwt = require("jsonwebtoken")
 class authClass {
     seedUser = async(req,res)=>{
         try {
@@ -66,6 +66,35 @@ class authClass {
         }
     };
     
+    verifyAccount = async (req,res)=>{
+        const jwtKey = process.env.JWT_KEY;
+        try {
+            let token = req.body.token;
+            const decodeToken = jwt.verify(token,jwtKey);
+            const userEmailAlreadyExists = await userModel.exists({email:decodeToken.email});
+            
+            if(userEmailAlreadyExists){
+                return res.status(409).json({
+                    status:"fail",
+                    msg : "User email already exists"
+                });
+            }
+            
+            await userModel.create(decodeToken);
+
+            return res.status(201).json({
+                status:"success",
+                msg : "User created successfully "
+            })
+
+        } catch (error) {
+            return res.status(500).json({
+                status:"fail",
+                msg : error.toString()
+            });
+        }
+    }
+
 }
 
 

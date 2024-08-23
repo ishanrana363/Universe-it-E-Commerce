@@ -35,12 +35,12 @@ app.get("/",async(req,res)=>{
 })
 
 // public routes
-const publicRoute = require("./src/routes/publicRoute");
-app.use("/api/v1",publicRoute);
+const userRoute = require("./src/routes/userRoute");
+app.use("/api/v1",userRoute);
 
 // private route
-const privateRoute = require("./src/routes/privateRoute");
-app.use("/api/v1", privateRoute);
+const adminRoute = require("./src/routes/adminRoute");
+app.use("/api/v1", adminRoute);
 
 
 

@@ -7,27 +7,25 @@ const smtpPassword = process.env.SMT_PASSWORD;
 const transporter = nodemailer.createTransport({
     host: "smtp.gmail.com",
     port: 587,
-    secure: false, // Use `true` for port 465, `false` for other ports
+    secure: false, 
     auth: {
-        user: smtpEmail, // Using the environment variable
+        user: smtpEmail, 
         pass: smtpPassword,
     },
 });
 
 const sendMail = async (data) => {
-    // Log data to check the contents
-    console.log('Sending email with the following data:', data);
+
 
     let mailOptions = {
         from: smtpEmail,
-        to: data.email, // Recipient's email address
-        subject: data.subject || 'No Subject', // Default subject if none provided
-        html: data.html || '<p>No content provided</p>', // Default HTML content if none provided
+        to: data.email, 
+        subject: data.subject || 'No Subject', 
+        html: data.html || '<p>No content provided</p>', 
     };
 
     try {
         await transporter.sendMail(mailOptions);
-        console.log('Email sent successfully');
     } catch (error) {
         console.error('Error sending email:', error);
     }
