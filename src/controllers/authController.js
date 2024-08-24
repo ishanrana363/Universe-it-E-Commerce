@@ -3,7 +3,7 @@ const userModel = require("../models/userModel");
 const sendMail = require("../helpers/email")
 require("dotenv").config();
 const bcrypt = require("bcrypt");
-const jwt = require("jsonwebtoken")
+const jwt = require('jsonwebtoken');
 class authClass {
     seedUser = async(req,res)=>{
         try {
@@ -118,13 +118,27 @@ class authClass {
                 });
             }
             let key = process.env.LOGIN_KEY;
+            // access token
             let token = createWebToken(
                 { user },
                 key,
-                "1000m"
+                "1m"
             );
             res.cookie("accessToken",token,{
-                maxAge : 30*60*60*60*1000,
+                maxAge : 1*60*1000,
+                httpOnly : true,
+                secure : true,
+                sameSite : 'none'
+            });
+            //refresh token
+            const refreshKey = process.env.REFRESH
+            let refreshToken = createWebToken(
+                { user },
+                refreshKey,
+                "7d"
+            );
+            res.cookie("refreshToken",refreshToken,{
+                maxAge : 7*24*60*60*1000,
                 httpOnly : true,
                 secure : true,
                 sameSite : 'none'
@@ -143,6 +157,7 @@ class authClass {
     handleLogout = async(req,res)=>{
         try {
             res.clearCookie("accessToken");
+            res.clearCookie("refreshToken");
             return res.status(200).json({
                 status : "success",
                 msg : "User logout successfully"
@@ -152,6 +167,52 @@ class authClass {
                 status:"fail",
                 msg : error.toString()
             });
+        }
+    }
+
+    handleRefreshToken = async(req,res)=>{
+            try {
+            let oldToken = req.cookies.refreshToken;
+            let refreshKey = process.env.REFRESH;
+            const accessToken = jwt.verify(oldToken,refreshKey);
+            if(!accessToken){
+                return res.status(401).json({
+                    status:"fail",
+                    msg : "Invalid token please login"
+                })
+            }
+            let key = process.env.LOGIN_KEY;
+            let token = createWebToken(
+                accessToken.user,
+                key,
+                "1m"
+            );
+            res.cookie("accessToken",token,{
+                maxAge : 1*60*1000,
+                httpOnly : true,
+                secure : true,
+                sameSite : 'none'
+            });
+
+            return res.status(200).json({
+                status:"success",
+                msg : "token create successfully"
+            });
+
+        } catch (error) {
+            return res.status(500).json({
+                status:"fail",
+                msg : error.toString(),
+                msg : "Internal server error"
+            });
+        }
+    };
+
+    handleProtectedRoute = async (req,res)=>{
+        try {
+            let accessToken = req.cookies.accessToken;
+        } catch (error) {
+            
         }
     }
 

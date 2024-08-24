@@ -21,5 +21,6 @@ authController.signUp);
 router.post("/activate/user", authController.verifyAccount);
 router.post("/user/sign-in", isLogOut,  authController.signInUser);
 router.get("/user/log-out", isLogIn, authController.handleLogout);
+router.get("/refresh/token", authController.handleRefreshToken);
 
 module.exports = router;
