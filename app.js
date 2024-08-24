@@ -4,6 +4,7 @@ const expressMongoSanitize = require('express-mongo-sanitize');
 const cors = require('cors');
 const hpp = require('hpp');
 const expressRateLimit = require('express-rate-limit');
+const cookie = require("cookie-parser")
 
 // express-mongo-sanitize use to user-supplied data to prevent MongoDB Operator Injection.
 app.use(expressMongoSanitize());
@@ -29,6 +30,8 @@ app.use(limiter)
 
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json({limit: '50mb'}));
+
+app.use(cookie());
 
 app.get("/",async(req,res)=>{
     res.send("Server is running");

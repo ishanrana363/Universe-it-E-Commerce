@@ -2,6 +2,7 @@ const { createWebToken } = require("../helpers/jsonToken");
 const userModel = require("../models/userModel");
 const sendMail = require("../helpers/email")
 require("dotenv").config();
+const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken")
 class authClass {
     seedUser = async(req,res)=>{
@@ -65,7 +66,6 @@ class authClass {
             });
         }
     };
-    
     verifyAccount = async (req,res)=>{
         const jwtKey = process.env.JWT_KEY;
         try {
@@ -87,6 +87,66 @@ class authClass {
                 msg : "User created successfully "
             })
 
+        } catch (error) {
+            return res.status(500).json({
+                status:"fail",
+                msg : error.toString()
+            });
+        }
+    };
+    signInUser = async (req,res)=>{
+        let {email,password} = req.body;
+        try {
+            let user = await userModel.findOne({email:email});
+            if(!user){
+                return res.status(404).json({
+                    status : "fail",
+                    msg : "User not exists in this email"
+                })
+            }
+            let matchPassword = bcrypt.compareSync(password,user.password);
+            if(!matchPassword){
+                return res.status(403).json({
+                    status : "fail",
+                    msg : "password not match"
+                });
+            }
+            if(user.isBand){
+                return res.status(403).json({
+                    status : "fail",
+                    msg : "You can not login. please contact authority"
+                });
+            }
+            let key = process.env.LOGIN_KEY;
+            let token = createWebToken(
+                { user },
+                key,
+                "1000m"
+            );
+            res.cookie("accessToken",token,{
+                maxAge : 30*60*60*60*1000,
+                httpOnly : true,
+                secure : true,
+                sameSite : 'none'
+            });
+            return res.status(200).json({
+                status:"success",
+                msg : "User login successfully"
+            })
+        } catch (error) {
+            res.status(500).json({
+                status:"fail",
+                msg : error.toString()
+            })
+        }
+    };
+    handleLogout = async(req,res)=>{
+        try {
+            res.clearCookie("accessToken");
+            return res.status(200).json({
+                status : "success",
+                msg : "User logout successfully"
+            })
         } catch (error) {
             return res.status(500).json({
                 status:"fail",

@@ -53,6 +53,7 @@ class userClass {
 
     singleUser = async (req, res) => {
         try {
+            console.log(req.user);
             let id = req.params.id;
     
             // Find the user by ID

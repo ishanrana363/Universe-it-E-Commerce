@@ -24,8 +24,6 @@ const userSchema = new Schema({
     password: {
         type: String,
         required: [true, "User password required"],
-        min: [6, "User password must be at least 6 characters long."],
-        max: [6, "User password can be a maximum of 7 characters long."], // Adjusted maxLength
         set: (v) => bcrypt.hashSync(v, bcrypt.genSaltSync(10))
     },
     address: {
@@ -35,15 +33,13 @@ const userSchema = new Schema({
     phone_number: {
         type: String,
         required: [true, "User phone number is required."],
-        unique : true
     },
-    img: {
+    image: {
         type: String
     },
-    role: {
-        type: String,
-        enum: ["user", "admin"],
-        default: "user"
+    isAdmin: {
+        type: Boolean,
+        default: false
     },
     isBand: {
         type: Boolean,
